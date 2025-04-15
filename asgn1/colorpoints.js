@@ -161,15 +161,17 @@ function Triangle(x, y, size, color) {
 
   this.render = function() {
     gl.uniform4f(u_FragColor, this.color[0], this.color[1], this.color[2], this.color[3]);
-
     gl.uniform1f(u_PointSize, this.size);
 
-    var h = this.size / 2.0;
+    var half = this.size / 400;
+    var height = half * Math.sqrt(3);
+
     var vertices = new Float32Array([
-      this.x, this.y + h,
-      this.x - h, this.y - h,
-      this.x + h, this.y - h
+      this.x, this.y + height,
+      this.x - half, this.y - height / 2, 
+      this.x + half, this.y - height / 2 
     ]);
+
     drawTriangleFan(vertices, 3);
   };
 }
@@ -245,7 +247,7 @@ function Diamond(x, y, size, color) {
     gl.uniform4f(u_FragColor, this.color[0], this.color[1], this.color[2], this.color[3]);
     gl.uniform1f(u_PointSize, this.size);
 
-    var scale = 3.5;
+    var scale = 1.5;
     var h = (this.size * scale) / 400;
     var vertices = new Float32Array([
       this.x, this.y + h,

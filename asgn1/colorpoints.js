@@ -22,6 +22,7 @@ var brushSize = 10;
 var segmentCount = 10;
 var currentColor = [1.0, 1.0, 1.0, 1.0];
 var shapesList = [];
+var whiteBackground = false;
 
 function main() {
   canvas = document.getElementById('webgl');
@@ -50,14 +51,18 @@ function main() {
 
 function setupUI() {
   document.getElementById('clear').onclick = function() {
+    whiteBackground = false;
     shapesList = [];
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    renderAllShapes();
   };
+  
 
   document.getElementById('square').onclick = function() { currentShape = 'square'; };
   document.getElementById('triangle').onclick = function() { currentShape = 'triangle'; };
   document.getElementById('circle').onclick = function() { currentShape = 'circle'; };
+  document.getElementById('diamond').onclick = () => currentShape = 'diamond';
+  document.getElementById('ellipse').onclick = () => currentShape = 'ellipse';
+  document.getElementById('star').onclick = () => currentShape = 'star';
 
   document.getElementById('drawPicture').onclick = function() {
     drawTrianglePicture();
@@ -69,6 +74,7 @@ function setupUI() {
 
   document.getElementById('segmentSlider').oninput = function(e) {
     segmentCount = parseInt(e.target.value);
+    
   };
 
   function updateColor() {
@@ -84,6 +90,7 @@ function setupUI() {
 }
 
 function handleClick(ev) {
+  whiteBackground = false;
   var rect = canvas.getBoundingClientRect();
   var x = (ev.clientX - rect.left - canvas.width / 2) / (canvas.width / 2);
   var y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2);
@@ -95,14 +102,27 @@ function handleClick(ev) {
     shape = new Triangle(x, y, brushSize, currentColor.slice());
   } else if (currentShape === 'circle') {
     shape = new Circle(x, y, brushSize, currentColor.slice(), segmentCount);
+  }else if (currentShape === 'diamond') {
+    shape = new Diamond(x, y, brushSize, currentColor.slice());
+  } else if (currentShape === 'ellipse') {
+    shape = new Ellipse(x, y, brushSize, currentColor.slice());
+  } else if (currentShape === 'star') {
+    shape = new Star(x, y, brushSize, currentColor.slice());
   }
+  
 
   shapesList.push(shape);
   renderAllShapes();
 }
 
 function renderAllShapes() {
+  if (whiteBackground) {
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+  } else {
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  }
   gl.clear(gl.COLOR_BUFFER_BIT);
+
   for (var i = 0; i < shapesList.length; i++) {
     shapesList[i].render();
   }
@@ -186,8 +206,7 @@ function drawTriangleFan(vertices, n) {
 }
 
 function drawTrianglePicture() {
-  gl.clearColor(1.0, 1.0, 1.0, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  whiteBackground = true;
   shapesList = []; // clear previous drawing
 
   const S = 0.3; // base size scaling unit
@@ -210,4 +229,80 @@ function drawTrianglePicture() {
 
   shapesList.push(...foxTriangles);
   renderAllShapes();
+}
+
+// === New Shapes: Diamond, Ellipse, Star ===
+
+// Diamond shape
+function Diamond(x, y, size, color) {
+  this.type = 'diamond';
+  this.x = x;
+  this.y = y;
+  this.size = size;
+  this.color = color;
+
+  this.render = function() {
+    gl.uniform4f(u_FragColor, this.color[0], this.color[1], this.color[2], this.color[3]);
+    gl.uniform1f(u_PointSize, this.size);
+
+    var scale = 3.5;
+    var h = (this.size * scale) / 400;
+    var vertices = new Float32Array([
+      this.x, this.y + h,
+      this.x + h, this.y,
+      this.x, this.y - h,
+      this.x - h, this.y
+    ]);
+    drawTriangleFan(vertices, 4);
+  };
+}
+
+// Ellipse shape
+function Ellipse(x, y, size, color, segments = 36) {
+  this.type = 'ellipse';
+  this.x = x;
+  this.y = y;
+  this.size = size;
+  this.color = color;
+  this.segments = segments;
+
+  this.render = function() {
+    gl.uniform4f(u_FragColor, this.color[0], this.color[1], this.color[2], this.color[3]);
+    gl.uniform1f(u_PointSize, this.size);
+
+    var vertices = [this.x, this.y];
+    var a = this.size / 400;
+    var b = a * 0.6; // squash vertically
+    for (var i = 0; i <= this.segments; i++) {
+      var angle = (2 * Math.PI * i) / this.segments;
+      vertices.push(this.x + Math.cos(angle) * a);
+      vertices.push(this.y + Math.sin(angle) * b);
+    }
+    drawTriangleFan(new Float32Array(vertices), this.segments + 2);
+  };
+}
+
+// Star shape (5-pointed)
+function Star(x, y, size, color) {
+  this.type = 'star';
+  this.x = x;
+  this.y = y;
+  this.size = size;
+  this.color = color;
+
+  this.render = function() {
+    gl.uniform4f(u_FragColor, this.color[0], this.color[1], this.color[2], this.color[3]);
+    gl.uniform1f(u_PointSize, this.size);
+
+    var outer = this.size / 400;
+    var inner = outer * 0.4;
+    var vertices = [this.x, this.y];
+    for (var i = 0; i <= 10; i++) {
+      var r = (i % 2 === 0) ? outer : inner;
+      var angle = (Math.PI / 5) * i;
+      vertices.push(this.x + Math.sin(angle) * r);
+      vertices.push(this.y + Math.cos(angle) * r);
+    }
+    drawTriangleFan(new Float32Array(vertices), 12);
+  };
 }

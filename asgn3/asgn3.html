@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voxel World</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="data:,">
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; }
+      canvas { width: 100%; height: 100%; display: block; }
+    </style>
+  </head>
+  <body>
+  <canvas id="webgl"></canvas>
+  <div id="messageBox" style="
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-size: 14px;
+    z-index: 999;
+    display: none;
+   ">
+   </div>
+  </body>
+
+  <div id="crosshair">+</div>
+
+  <div id="helpBox">
+    <h3>🎮 Rescue the Lost Cubs</h3>
+    <p>
+      You are in a voxel world. <br>
+      Find and rescue 5 glowing baby animals (yellow cubes) scattered across the map. <br>
+      Return them to the glowing safe zone near the start before time runs out!
+    </p>
+    <h4>🕹️ Controls:</h4>
+    <ul>
+      <li><b>W/A/S/D</b> - Move forward/left/back/right</li>
+      <li><b>Q / E</b> - Turn left / right</li>
+      <li><b>Mouse</b> - Look around</li>
+      <li><b>T</b> - Pick up nearby cub</li>
+      <li><b>H</b> - Restart after win/lose</li>
+      <li><b>B</b> - Add block</li>
+      <li><b>N</b> - Remove block</li>
+    </ul>
+  </div>
+  
+  <style>
+    #helpBox {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.75);
+      color: white;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      max-width: 260px;
+      line-height: 1.4;
+      z-index: 999;
+      font-family: sans-serif;
+    }
+  
+    #helpBox h3, #helpBox h4 {
+      margin: 0 0 5px 0;
+      font-weight: bold;
+    }
+  
+    #helpBox ul {
+      padding-left: 18px;
+      margin: 5px 0 0 0;
+    }
+  
+    #helpBox li {
+      margin-bottom: 4px;
+    }
+  </style>
+  
+  <script id="shader-vs" type="x-shader/x-vertex">
+  attribute vec4 a_Position;
+  attribute vec2 a_TexCoord;
+  uniform mat4 u_ModelMatrix;
+  uniform mat4 u_ViewMatrix;
+  uniform mat4 u_ProjectionMatrix;
+  varying vec2 v_TexCoord;
+  void main() {
+    gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
+    v_TexCoord = a_TexCoord;
+  }
+  </script>
+
+  <script id="shader-fs" type="x-shader/x-fragment">
+  precision mediump float;
+  uniform sampler2D u_Sampler;
+  uniform float u_texColorWeight;
+  uniform vec4 u_baseColor;
+  varying vec2 v_TexCoord;
+  void main() {
+    vec4 texColor = texture2D(u_Sampler, v_TexCoord);
+    gl_FragColor = mix(u_baseColor, texColor, u_texColorWeight);
+  }
+  </script>
+
+  <script src="lib/cuon-matrix-cse160.js"></script>
+  <script src="lib/cuon-utils.js"></script>
+  <script src="lib/webgl-utils.js"></script>
+  <script src="camera.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

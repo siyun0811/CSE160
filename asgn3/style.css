@@ -1,0 +1,13 @@
+#crosshair {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    pointer-events: none;
+    user-select: none;
+    z-index: 9999;
+    font-weight: bold;
+  }
+  

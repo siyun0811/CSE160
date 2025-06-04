@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Box Explosion</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #explodeBtn {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 24px;
+      z-index: 10;
+    }
+
+    #startGameBtn {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      z-index: 10;
+    }
+
+    #hud {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      font-size: 20px;
+      color: white;
+      z-index: 10;
+      text-align: left;
+    }
+
+    #score, #time {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <button id="startGameBtn">Start Game</button>
+  <div id="gameIntro" style="position:absolute; top:400px; left:700px; color:white; background:#000a; padding:20px; border-radius:10px;">
+    <h2>Welcome to Fireworks Game!</h2>
+    <p>Click <strong>Start Game</strong> to begin.<br>Click floating diamonds to gain score.<br>When time ends, click <strong>BOOM</strong> to watch the explosion!</p>
+  </div>
+
+  <div id="hud">
+    <div id="score">Score: 0</div>
+    <div id="time">Time: 30</div>
+  </div>
+  <button id="explodeBtn">Boom!</button>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
